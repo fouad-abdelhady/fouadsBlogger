@@ -19,7 +19,7 @@ import hk.ust.cse.comp107x.blogger.authentication.LoginActivity;
 import hk.ust.cse.comp107x.blogger.users.options.UserProfileActivity;
 
 public class MainActivity extends AppCompatActivity {
-
+// whats mr Abdelrahman
     private static final String[] PERMISSTIONS = new String[]{
             Manifest.permission.INTERNET
     };
