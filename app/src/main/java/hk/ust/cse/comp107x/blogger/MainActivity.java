@@ -21,7 +21,9 @@ import hk.ust.cse.comp107x.blogger.users.options.UserProfileActivity;
 public class MainActivity extends AppCompatActivity {
 // whats mr Abdelrahman
     private static final String[] PERMISSTIONS = new String[]{
-            Manifest.permission.INTERNET
+            Manifest.permission.INTERNET,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
     private static final int PERMISSIONS_REQUEST_CODE = 1;
     private boolean permissionsGranted = false;
@@ -38,6 +40,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        begin();
+    }
+
+    private void begin() {
         checkPermissionsState();
         if (!permissionsGranted) {
             return;
@@ -73,10 +79,12 @@ public class MainActivity extends AppCompatActivity {
                             "Sorry we need these permissions to operate",
                             Toast.LENGTH_LONG).
                             show();
+                    finish();
                     return;
                 }
             }
             permissionsGranted = true;
+        begin();
     }
 
     private void checkUser() {
