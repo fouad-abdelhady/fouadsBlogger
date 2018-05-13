@@ -1,22 +1,32 @@
 package hk.ust.cse.comp107x.blogger.users.options;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import hk.ust.cse.comp107x.blogger.MainActivity;
 import hk.ust.cse.comp107x.blogger.R;
 
 public class AccountSettingsActivity extends AppCompatActivity {
@@ -26,6 +36,12 @@ public class AccountSettingsActivity extends AppCompatActivity {
     private CircleImageView profileImage;
     private EditText userName;
     private TextView clickToSetImage;
+
+    private AlertDialog uploadDialog = null;
+    private ProgressBar loadingProgress = null;
+
+    private FirebaseAuth auth;
+    private StorageReference storage;
 
     private Uri imageUri= null;
     @Override
@@ -45,6 +61,12 @@ public class AccountSettingsActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         setProfileImageClickListener();
+        setFreebaseObj();
+    }
+
+    private void setFreebaseObj() {
+        auth = FirebaseAuth.getInstance();
+        storage = FirebaseStorage.getInstance().getReference();
     }
 
     private void setProfileImageClickListener() {
@@ -105,9 +127,9 @@ public class AccountSettingsActivity extends AppCompatActivity {
         }
     }
 
-    public void checkAndontinue(View view) {
+    public void checkAndContinue(View view) {
         if(check()){
-
+           uploadImage();
         }
     }
 
@@ -124,4 +146,47 @@ public class AccountSettingsActivity extends AppCompatActivity {
         }
         return true;
     }
+
+    private void uploadImage(){
+        setUploadDialog();
+
+        StorageReference image_ref = storage.child("Profile_images").
+                child(auth.getCurrentUser().
+                        getUid()+".jpg");
+        image_ref.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                Toast.
+                        makeText(AccountSettingsActivity.this,
+                                "uploaded successfully",
+                                Toast.LENGTH_LONG).
+                        show();
+                uploadDialog.dismiss();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.
+                        makeText(AccountSettingsActivity.this,
+                                e.getMessage(),
+                                Toast.LENGTH_LONG).
+                        show();
+                uploadDialog.dismiss();
+            }
+        });
+    }
+    private void setUploadDialog() {
+       AlertDialog.Builder loadingBuilder = new AlertDialog.Builder(AccountSettingsActivity.this);
+
+        View uploadDialogLayout = LayoutInflater.from(this).inflate(R.layout.upload_state, null);
+        loadingProgress = uploadDialogLayout.findViewById(R.id.uploading_image);
+
+        loadingBuilder.setTitle("Uploading Data");
+        loadingBuilder.setCancelable(false);
+        loadingBuilder.setView(uploadDialogLayout);
+
+        uploadDialog = loadingBuilder.create();
+        uploadDialog.show();
+    }
 }
+
