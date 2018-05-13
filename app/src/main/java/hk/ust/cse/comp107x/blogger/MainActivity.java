@@ -3,6 +3,7 @@ package hk.ust.cse.comp107x.blogger;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -21,9 +22,9 @@ import hk.ust.cse.comp107x.blogger.users.options.UserProfileActivity;
 public class MainActivity extends AppCompatActivity {
 // whats mr Abdelrahman
     private static final String[] PERMISSTIONS = new String[]{
-            Manifest.permission.INTERNET,
+            Manifest.permission.INTERNET/*,
             Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
+            Manifest.permission.WRITE_EXTERNAL_STORAGE*/
     };
     private static final int PERMISSIONS_REQUEST_CODE = 1;
     private boolean permissionsGranted = false;
@@ -44,7 +45,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void begin() {
-        checkPermissionsState();
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
+            permissionsGranted = true;
+        else
+            checkPermissionsState();
+
+
         if (!permissionsGranted) {
             return;
         }

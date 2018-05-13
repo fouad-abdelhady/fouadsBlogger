@@ -23,7 +23,9 @@
         <activity android:name=".authentication.LoginActivity" />
         <activity android:name=".authentication.CreateAccountActivity" />
         <activity android:name=".users.options.AccountSettingsActivity" />
-        <activity android:name=".users.options.UserProfileActivity"></activity>
+        <activity android:name=".users.options.UserProfileActivity"/>
+        <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+            android:theme="@style/Base.Theme.AppCompat"/>
     </application>
 
 </manifest>
