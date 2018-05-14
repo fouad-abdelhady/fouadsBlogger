@@ -1,7 +1,9 @@
 package hk.ust.cse.comp107x.blogger.users.options;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -16,12 +18,14 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 import hk.ust.cse.comp107x.blogger.R;
 
 public class AddPost extends AppCompatActivity {
-
+    private static final int REQUEST_CODE = 25;
+    private PermissionsManager pm;
     private ImageView postImage;
     private EditText description;
     private Toolbar actionBar;
 
     private Uri imageUri = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,14 +42,42 @@ public class AddPost extends AppCompatActivity {
     private void setViews() {
         postImage = findViewById(R.id.add_post_post_image);
         description = findViewById(R.id.add_post_post_description);
-
+        pm = new PermissionsManager();
     }
 
     public void selectImage(View view) {
-        CropImage.activity()
-                .setGuidelines(CropImageView.Guidelines.ON).
-                setAspectRatio(2,1)
-                .start(this);
+        begin();
+    }
+
+    private void begin() {
+        if(checkPermissionState()){
+            CropImage.activity()
+                    .setGuidelines(CropImageView.Guidelines.ON).
+                    setAspectRatio(2,1)
+                    .start(this);
+        }
+    }
+
+    private boolean checkPermissionState() {
+        String [] permissions = new String[]{PermissionsManager.WRITE_EXTERNAL_SRORAGE,
+                PermissionsManager.READ_EXTERNAL_STORAGE};
+       return pm.checkPermissions(permissions, this, REQUEST_CODE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_CODE)
+            for (int state : grantResults) {
+                if (state == PackageManager.PERMISSION_DENIED){
+                    Toast.makeText(AddPost.this,
+                            "Sorry we need these permissions to operate",
+                            Toast.LENGTH_LONG).
+                            show();
+                    finish();
+                    return;
+                }
+            }
+           begin();
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
