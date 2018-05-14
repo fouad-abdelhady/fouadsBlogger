@@ -16,14 +16,14 @@
         android:layout_marginTop="32dp"
         android:indeterminate="true"
         android:max="100"
-        app:layout_constraintBottom_toTopOf="@+id/textView"
+        app:layout_constraintBottom_toTopOf="@+id/upload_stateMessage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.65" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/upload_stateMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="32dp"

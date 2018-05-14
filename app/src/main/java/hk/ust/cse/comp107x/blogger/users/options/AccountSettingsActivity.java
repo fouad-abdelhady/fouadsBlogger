@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,22 +14,32 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.util.HashMap;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 import hk.ust.cse.comp107x.blogger.R;
+import hk.ust.cse.comp107x.blogger.authentication.CreateAccountActivity;
 
 public class AccountSettingsActivity extends AppCompatActivity {
     private final static int REQUEST_CODE = 22;
+    public static final String PROFILE_IMAGES = "Profile_images";
+    public static final String USER_NAME = "User Name";
+    public static final String USER_IMAGE = "Profile Image";
+    public static final String USERS_FILE = "Users";
     private  PermissionsManager pm;
 
     private CircleImageView profileImage;
@@ -42,8 +51,13 @@ public class AccountSettingsActivity extends AppCompatActivity {
 
     private FirebaseAuth auth;
     private StorageReference storage;
+    private FirebaseFirestore firestore;
 
     private Uri imageUri= null;
+
+    private  String userProfileImage;
+
+    private int from = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,18 +69,51 @@ public class AccountSettingsActivity extends AppCompatActivity {
         profileImage = findViewById(R.id.profile_image);
         userName = findViewById(R.id.Username);
         clickToSetImage = findViewById(R.id.clickToSetImage);
+        Intent i = getIntent();
+        from = i.getIntExtra(CreateAccountActivity.COME_FROM, -1);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         setProfileImageClickListener();
-        setFreebaseObj();
+        setFirebaseObj();
+        if(from != 1)
+            checkUserData();
     }
 
-    private void setFreebaseObj() {
+    private void checkUserData() {
+        setloadingDialog("Downloading your data ", "Downloading now...");
+        String userID = auth.getCurrentUser().getUid();
+        firestore.collection(USERS_FILE).document(userID).get().
+                addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    if(task.getResult().exists()){
+                        clickToSetImage.setVisibility(View.INVISIBLE);
+                        userName.setText(task.getResult().getString(USER_NAME));
+                        userProfileImage = task.getResult().getString(USER_IMAGE);
+
+
+                        Glide.with(AccountSettingsActivity.this).load(userProfileImage).into(profileImage);
+
+                        uploadDialog.dismiss();
+                    }
+                }
+                else{
+                    uploadDialog.dismiss();
+                }
+            }
+        });
+
+    }
+
+    private void setFirebaseObj() {
         auth = FirebaseAuth.getInstance();
         storage = FirebaseStorage.getInstance().getReference();
+        firestore = FirebaseFirestore.getInstance();
     }
 
     private void setProfileImageClickListener() {
@@ -118,7 +165,7 @@ public class AccountSettingsActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
 
                 imageUri = result.getUri();
-                profileImage.setImageURI(imageUri);
+                profileImage.setImageURI(result.getUri());
                 clickToSetImage.setVisibility(View.INVISIBLE);
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
@@ -148,20 +195,15 @@ public class AccountSettingsActivity extends AppCompatActivity {
     }
 
     private void uploadImage(){
-        setUploadDialog();
+        setloadingDialog("Uploading Data", "Please Wait, uploading your data...");
 
-        StorageReference image_ref = storage.child("Profile_images").
+        StorageReference image_ref = storage.child(PROFILE_IMAGES).
                 child(auth.getCurrentUser().
                         getUid()+".jpg");
         image_ref.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                Toast.
-                        makeText(AccountSettingsActivity.this,
-                                "uploaded successfully",
-                                Toast.LENGTH_LONG).
-                        show();
-                uploadDialog.dismiss();
+                saveUserNameAndImageURI(task.getResult().getDownloadUrl());
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -175,13 +217,49 @@ public class AccountSettingsActivity extends AppCompatActivity {
             }
         });
     }
-    private void setUploadDialog() {
+
+    private void saveUserNameAndImageURI(Uri downloadUrl) {
+
+        HashMap<String, Object> user = new HashMap<>();
+        user.put(USER_NAME, userName.getText().toString());
+        user.put(USER_IMAGE, downloadUrl.toString());
+
+        firestore.
+                collection(USERS_FILE).
+                document(auth.getCurrentUser().getUid()).
+                set(user).
+                addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                uploadDialog.dismiss();
+                Intent i = new Intent(AccountSettingsActivity.this,UserProfileActivity.class);
+                startActivity(i);
+                if(from == CreateAccountActivity.CREATE_ACCOUNT){
+                    finish();
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.
+                        makeText(AccountSettingsActivity.this, e.getMessage(), Toast.LENGTH_LONG).
+                        show();
+
+                uploadDialog.dismiss();
+            }
+        });
+
+    }
+
+    private void setloadingDialog(String Title, String message) {
        AlertDialog.Builder loadingBuilder = new AlertDialog.Builder(AccountSettingsActivity.this);
 
-        View uploadDialogLayout = LayoutInflater.from(this).inflate(R.layout.upload_state, null);
+        View uploadDialogLayout = LayoutInflater.from(this).inflate(R.layout.loading_state_dialog, null);
         loadingProgress = uploadDialogLayout.findViewById(R.id.uploading_image);
+        TextView loadingStateMessage = uploadDialogLayout.findViewById(R.id.upload_stateMessage);
 
-        loadingBuilder.setTitle("Uploading Data");
+        loadingStateMessage.setText(message);
+        loadingBuilder.setTitle(Title);
         loadingBuilder.setCancelable(false);
         loadingBuilder.setView(uploadDialogLayout);
 

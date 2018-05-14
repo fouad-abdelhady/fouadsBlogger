@@ -19,6 +19,8 @@ import hk.ust.cse.comp107x.blogger.users.options.AccountSettingsActivity;
 import hk.ust.cse.comp107x.blogger.users.options.UserProfileActivity;
 
 public class CreateAccountActivity extends AppCompatActivity {
+    public static final String COME_FROM = "from";
+    public static final int CREATE_ACCOUNT = 1;
     private EditText email;
     private EditText password;
     private EditText confirmPassword;
@@ -51,7 +53,8 @@ public class CreateAccountActivity extends AppCompatActivity {
             public void onSuccess(AuthResult authResult) {
                 loading.setVisibility(View.INVISIBLE);
                 Intent accountSettings = new Intent(CreateAccountActivity.this,
-                        UserProfileActivity.class);
+                        AccountSettingsActivity.class);
+                accountSettings.putExtra(COME_FROM, CREATE_ACCOUNT);
                 startActivity(accountSettings);
                 finish();
             }
