@@ -31,6 +31,7 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import hk.ust.cse.comp107x.blogger.MainActivity;
 import hk.ust.cse.comp107x.blogger.R;
 import hk.ust.cse.comp107x.blogger.authentication.CreateAccountActivity;
 
@@ -70,7 +71,7 @@ public class AccountSettingsActivity extends AppCompatActivity {
         userName = findViewById(R.id.Username);
         clickToSetImage = findViewById(R.id.clickToSetImage);
         Intent i = getIntent();
-        from = i.getIntExtra(CreateAccountActivity.COME_FROM, -1);
+        from = i.getIntExtra(MainActivity.COME_FROM, -1);
     }
 
     @Override
@@ -78,7 +79,7 @@ public class AccountSettingsActivity extends AppCompatActivity {
         super.onStart();
         setProfileImageClickListener();
         setFirebaseObj();
-        if(from != 1)
+        if(from == -1)
             checkUserData();
     }
 

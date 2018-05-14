@@ -12,22 +12,31 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
 import hk.ust.cse.comp107x.blogger.authentication.LoginActivity;
+import hk.ust.cse.comp107x.blogger.users.options.AccountSettingsActivity;
 import hk.ust.cse.comp107x.blogger.users.options.UserProfileActivity;
 
 public class MainActivity extends AppCompatActivity {
-// whats mr Abdelrahman
+
     private static final String[] PERMISSTIONS = new String[]{
-            Manifest.permission.INTERNET/*,
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE*/
+            Manifest.permission.INTERNET
     };
+    public static final String COME_FROM = "come from";
+    public static final int MAIN_ACTIVTY = 2;
     private static final int PERMISSIONS_REQUEST_CODE = 1;
+
     private boolean permissionsGranted = false;
+    private boolean isAcoountSettingsComplete = false;
+    private FirebaseAuth auth;
+    private FirebaseFirestore firestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +50,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        setFirebaseObjects();
         begin();
+    }
+
+    private void setFirebaseObjects() {
+        auth = FirebaseAuth.getInstance();
+        firestore = FirebaseFirestore.getInstance();
     }
 
     private void begin() {
@@ -100,10 +115,34 @@ public class MainActivity extends AppCompatActivity {
             i = new Intent(this, LoginActivity.class);
         }
         else{
-            i = new Intent(this, UserProfileActivity.class);
+            if(isAccountSettingsComplete(auth.getCurrentUser().getUid())){
+                i = new Intent(this, AccountSettingsActivity.class);
+                i.putExtra(COME_FROM, MAIN_ACTIVTY);
+            }
+            else
+                i = new Intent(this, UserProfileActivity.class);
         }
 
         startActivity(i);
         finish();
+    }
+
+    private boolean isAccountSettingsComplete(String uid) {
+        firestore.
+                collection(AccountSettingsActivity.USERS_FILE).
+                document(uid).get().
+                addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.getResult().exists()){
+                    isAcoountSettingsComplete = true;
+                }
+                else{
+                    isAcoountSettingsComplete = false;
+                }
+            }
+        });
+        return true;
     }
 }
