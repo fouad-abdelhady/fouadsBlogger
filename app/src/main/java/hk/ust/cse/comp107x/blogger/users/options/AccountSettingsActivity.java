@@ -233,7 +233,7 @@ public class AccountSettingsActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Void aVoid) {
                 uploadDialog.dismiss();
-                Intent i = new Intent(AccountSettingsActivity.this,UserProfileActivity.class);
+                Intent i = new Intent(AccountSettingsActivity.this,HomeActivity.class);
                 startActivity(i);
                 if(from == CreateAccountActivity.CREATE_ACCOUNT){
                     finish();

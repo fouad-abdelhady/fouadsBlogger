@@ -22,7 +22,7 @@ import java.util.ArrayList;
 
 import hk.ust.cse.comp107x.blogger.authentication.LoginActivity;
 import hk.ust.cse.comp107x.blogger.users.options.AccountSettingsActivity;
-import hk.ust.cse.comp107x.blogger.users.options.UserProfileActivity;
+import hk.ust.cse.comp107x.blogger.users.options.HomeActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
                 i.putExtra(COME_FROM, MAIN_ACTIVTY);
             }
             else
-                i = new Intent(this, UserProfileActivity.class);
+                i = new Intent(this, HomeActivity.class);
         }
 
         startActivity(i);

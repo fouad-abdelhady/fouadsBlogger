@@ -16,7 +16,6 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import hk.ust.cse.comp107x.blogger.R;
 import hk.ust.cse.comp107x.blogger.users.options.AccountSettingsActivity;
-import hk.ust.cse.comp107x.blogger.users.options.UserProfileActivity;
 
 public class CreateAccountActivity extends AppCompatActivity {
     public static final String COME_FROM = "from";

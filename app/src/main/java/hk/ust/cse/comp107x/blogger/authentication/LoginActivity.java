@@ -15,7 +15,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 import hk.ust.cse.comp107x.blogger.R;
-import hk.ust.cse.comp107x.blogger.users.options.UserProfileActivity;
+import hk.ust.cse.comp107x.blogger.users.options.HomeActivity;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -45,7 +45,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onSuccess(AuthResult authResult) {
                 loading.setVisibility(View.INVISIBLE);
-                Intent  userProfile = new Intent(LoginActivity.this, UserProfileActivity.class);
+                Intent  userProfile = new Intent(LoginActivity.this, HomeActivity.class);
                 startActivity(userProfile);
                 finish();
             }
