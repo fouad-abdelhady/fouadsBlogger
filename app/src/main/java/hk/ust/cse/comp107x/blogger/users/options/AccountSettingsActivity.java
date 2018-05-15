@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -36,6 +37,7 @@ import hk.ust.cse.comp107x.blogger.R;
 import hk.ust.cse.comp107x.blogger.authentication.CreateAccountActivity;
 
 public class AccountSettingsActivity extends AppCompatActivity {
+    private final static String SETTINGS_LOG_D = "accountSettingsDebug";
     private final static int REQUEST_CODE = 22;
     public static final String PROFILE_IMAGES = "Profile_images";
     public static final String USER_NAME = "User Name";
@@ -84,6 +86,7 @@ public class AccountSettingsActivity extends AppCompatActivity {
     }
 
     private void checkUserData() {
+
         setloadingDialog("Downloading your data ", "Downloading now...");
         String userID = auth.getCurrentUser().getUid();
         firestore.collection(USERS_FILE).document(userID).get().
@@ -91,7 +94,9 @@ public class AccountSettingsActivity extends AppCompatActivity {
 
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                Log.d(SETTINGS_LOG_D,"in On complete now");
                 if(task.isSuccessful()){
+                    Log.d(SETTINGS_LOG_D,"Task is successful");
                     if(task.getResult().exists()){
                         clickToSetImage.setVisibility(View.INVISIBLE);
                         userName.setText(task.getResult().getString(USER_NAME));
@@ -100,12 +105,15 @@ public class AccountSettingsActivity extends AppCompatActivity {
 
                         Glide.with(AccountSettingsActivity.this).load(userProfileImage).into(profileImage);
 
-                        uploadDialog.dismiss();
+
                     }
-                }
-                else{
                     uploadDialog.dismiss();
                 }
+                else{
+                    Toast.makeText(AccountSettingsActivity.this, task.getException().getMessage(), Toast.LENGTH_LONG);
+                    uploadDialog.dismiss();
+                }
+
             }
         });
 

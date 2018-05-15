@@ -14,6 +14,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
+import hk.ust.cse.comp107x.blogger.MainActivity;
 import hk.ust.cse.comp107x.blogger.R;
 import hk.ust.cse.comp107x.blogger.users.options.AccountSettingsActivity;
 
@@ -53,7 +54,7 @@ public class CreateAccountActivity extends AppCompatActivity {
                 loading.setVisibility(View.INVISIBLE);
                 Intent accountSettings = new Intent(CreateAccountActivity.this,
                         AccountSettingsActivity.class);
-                accountSettings.putExtra(COME_FROM, CREATE_ACCOUNT);
+                accountSettings.putExtra(MainActivity.COME_FROM, CREATE_ACCOUNT);
                 startActivity(accountSettings);
                 finish();
             }
