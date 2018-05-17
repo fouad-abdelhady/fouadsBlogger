@@ -23,14 +23,26 @@
         android:id="@+id/home_add_post"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="24dp"
         android:layout_marginEnd="16dp"
         android:clickable="true"
         android:focusable="true"
         android:onClick="moveToAddPost"
         app:backgroundTint="@color/colorPrimaryDark"
-        app:fabSize="normal"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:fabSize="auto"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_add_black_24dp" />
+
+    <android.support.design.widget.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:menu="@menu/bottom_navigation_bar_bottons"
+        app:itemBackground="@color/colorPrimaryDark"
+        app:itemIconTint="@color/bottom_nav_style"
+        app:itemTextColor="@color/bottom_nav_style"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 </android.support.constraint.ConstraintLayout>

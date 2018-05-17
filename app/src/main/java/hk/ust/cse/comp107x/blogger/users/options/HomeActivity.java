@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import hk.ust.cse.comp107x.blogger.R;
 import hk.ust.cse.comp107x.blogger.authentication.LoginActivity;
+import hk.ust.cse.comp107x.blogger.users.options.post.AddPost;
 
 public class HomeActivity extends AppCompatActivity {
     private Toolbar actionBar;

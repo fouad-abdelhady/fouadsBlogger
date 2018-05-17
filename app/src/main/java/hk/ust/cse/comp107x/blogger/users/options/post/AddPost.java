@@ -1,4 +1,4 @@
-package hk.ust.cse.comp107x.blogger.users.options;
+package hk.ust.cse.comp107x.blogger.users.options.post;
 
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -27,9 +27,14 @@ import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
 import hk.ust.cse.comp107x.blogger.R;
+import hk.ust.cse.comp107x.blogger.users.options.HomeActivity;
+import hk.ust.cse.comp107x.blogger.users.options.PermissionsManager;
 
 public class AddPost extends AppCompatActivity {
     private static final int REQUEST_CODE = 25;
@@ -139,7 +144,9 @@ public class AddPost extends AppCompatActivity {
 
     private void startUploadingData() {
         setloadingDialog("Uploading Data","Please Wait");
-        String imageName = auth.getCurrentUser().getUid()+ FieldValue.serverTimestamp()+".jpg";
+        String currentDate = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).
+                             format(new Date());
+        String imageName = auth.getCurrentUser().getUid()+ currentDate+".jpg";
         StorageReference imageRef = storageReference.child(POSTS_IMAGES).child(imageName);
         imageRef.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -161,7 +168,7 @@ public class AddPost extends AppCompatActivity {
         newPost.put("Posted By", auth.getCurrentUser().getUid());
         newPost.put("Description", description.getText().toString());
         newPost.put("Image Link", downloadUrl.toString());
-        newPost.put("TimeStamp", FieldValue.serverTimestamp().toString());
+        newPost.put("TimeStamp", FieldValue.serverTimestamp());
 
         firestore.collection(POSTS_FILE).add(newPost).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
